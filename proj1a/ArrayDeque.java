@@ -16,9 +16,9 @@ public class ArrayDeque<T> {
     }
 
     private void resize(double factor) {
-        T[] tmp = (T[]) new Object[(int)(a.length * factor)];
+        T[] tmp = (T[]) new Object[(int) (a.length * factor)];
         for (int i = 0; i < size; i++) {
-            tmp[i] = a[(i+front+1)%size];
+            tmp[i] = a[(i + front + 1) % size];
         }
         a = tmp;
         front = a.length - 1;
@@ -74,7 +74,7 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        rear = (rear - 1) % a.length;
+        rear = (rear + a.length - 1) % a.length;
         size -= 1;
         T tmp = a[rear]; // this is needed in case of resize
         if (a.length >= MIN_SIZE && size * 4 < a.length) {
@@ -88,17 +88,5 @@ public class ArrayDeque<T> {
             return null;
         }
         return a[(front + 1 + index) % a.length];
-    }
-
-    public static void main(String[] args) {
-        ArrayDeque<Integer> array = new ArrayDeque<>();
-        for (int i = 0; i < 127; i++) {
-            array.addFirst(i);
-        }
-        for (int i = 1000; i < 1127; i++) {
-            array.addLast(i);
-        }
-        array.removeFirst();
-        array.removeLast();
     }
 }
