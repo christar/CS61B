@@ -1,6 +1,6 @@
 public class ArrayDeque<T> {
     private final int INITIAL_SIZE = 8;
-    private final int RESIZE_FACTOR = 2;
+    private final double RESIZE_FACTOR = 2.0;
     private final int MIN_SIZE = 16;
 
     private int size;
@@ -15,10 +15,15 @@ public class ArrayDeque<T> {
         a = (T[]) new Object[INITIAL_SIZE];
     }
 
+    private int calcIndex(int curr, int offset) {
+        int index = curr + offset + a.length;
+        return index % a.length;
+    }
+
     private void resize(double factor) {
         T[] tmp = (T[]) new Object[(int) (a.length * factor)];
         for (int i = 0; i < size; i++) {
-            tmp[i] = a[(i + front + 1) % size];
+            tmp[i] = a[calcIndex(i, front + 1)];
         }
         a = tmp;
         front = a.length - 1;
@@ -31,7 +36,7 @@ public class ArrayDeque<T> {
         }
         size += 1;
         a[front] = item;
-        front = (front + a.length - 1) % a.length;
+        front = calcIndex(front, -1);
     }
 
     public void addLast(T item) {
@@ -40,7 +45,7 @@ public class ArrayDeque<T> {
         }
         size += 1;
         a[rear] = item;
-        rear = (rear + 1) % a.length;
+        rear = calcIndex(rear, 1);
     }
 
     public boolean isEmpty() {
@@ -53,7 +58,7 @@ public class ArrayDeque<T> {
 
     public void printDeque() {
         for (int i = 0; i < size; i++) {
-            System.out.println(a[(i + front + 1) % a.length] + " ");
+            System.out.print(get(i) + " ");
         }
     }
 
@@ -61,11 +66,12 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        front = (front + 1) % a.length;
+        front = calcIndex(front, 1);
         size -= 1;
         T tmp = a[front]; // this is needed in case of resize
+        a[front] = null;
         if (a.length >= MIN_SIZE && size * 4 < a.length) {
-            resize(0.5);
+            resize(1 / RESIZE_FACTOR);
         }
         return tmp;
     }
@@ -74,11 +80,12 @@ public class ArrayDeque<T> {
         if (this.isEmpty()) {
             return null;
         }
-        rear = (rear + a.length - 1) % a.length;
+        rear = calcIndex(rear, -1);
         size -= 1;
         T tmp = a[rear]; // this is needed in case of resize
+        a[rear] = null;
         if (a.length >= MIN_SIZE && size * 4 < a.length) {
-            resize(0.5);
+            resize(1 / RESIZE_FACTOR);
         }
         return tmp;
     }
@@ -87,6 +94,6 @@ public class ArrayDeque<T> {
         if (index > size - 1 || index < 0) {
             return null;
         }
-        return a[(front + 1 + index) % a.length];
+        return a[calcIndex(index, front + 1)];
     }
 }
