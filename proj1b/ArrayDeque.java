@@ -1,4 +1,4 @@
-public class ArrayDeque<T> implements Deque<T>{
+public class ArrayDeque<T> implements Deque<T> {
     private final int INITIAL_SIZE = 8;
     private final double RESIZE_FACTOR = 2.0;
     private final int MIN_SIZE = 16;
