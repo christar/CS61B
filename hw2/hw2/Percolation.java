@@ -91,4 +91,8 @@ public class Percolation {
     public boolean percolates() {
         return grid.connected(HEAD_SENT_OFFSET, TAIL_SENT_OFFSET);
     }
+
+    public static void main(String[] args) {
+
+    }
 }
