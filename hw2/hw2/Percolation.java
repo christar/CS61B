@@ -8,8 +8,8 @@ public class Percolation {
     private int countOpen;
     private final int HEIGHT;
     private final int WIDTH;
-    private final int HEAD_SENT_OFFSET;
-    private final int TAIL_SENT_OFFSET;
+    private byte[] backwash; // 1 - bottom, 2 - top, 3 - top and bottom
+    private boolean percolated;
 
     public Percolation(int N) {
         if (N <= 0) {
@@ -18,17 +18,19 @@ public class Percolation {
 
         HEIGHT = N;
         WIDTH = N;
-        HEAD_SENT_OFFSET = 0;
-        TAIL_SENT_OFFSET = N * N + 1;
-        grid = new WeightedQuickUnionUF(N * N + 2);
-        open = new boolean[N * N + 2];
-        open[HEAD_SENT_OFFSET] = true;
-        open[TAIL_SENT_OFFSET] = true;
+        grid = new WeightedQuickUnionUF(HEIGHT * WIDTH);
+        open = new boolean[HEIGHT * WIDTH];
+        backwash = new byte[HEIGHT * WIDTH];
+        percolated = false;
         countOpen = 0;
     }
 
     private int offsetHelper(int row, int col) {
-        return row * WIDTH + col + 1;
+        return row * WIDTH + col;
+    }
+
+    private int statusHelper(int row, int col) {
+        return backwash[grid.find(offsetHelper(row, col))];
     }
 
     public void open(int row, int col) {
@@ -36,40 +38,47 @@ public class Percolation {
             throw new java.lang.IndexOutOfBoundsException("Parameter out of bound!");
         }
         int offset = offsetHelper(row, col);
+        byte status = 0; // current backwash status
         if (!isOpen(row, col)) {
             open[offset] = true;
             countOpen += 1;
-        }
-
-        // connect possible open neighbours
-        // top
-        if (row == 0) {
-            // connect with virtual head sentinel cell
-            grid.union(offset, HEAD_SENT_OFFSET);
-        } else {
-            if (isOpen(row - 1, col)) {
-                grid.union(offset, offsetHelper(row - 1, col));
+            // connect possible open neighbours
+            // top
+            if (row == 0) {
+                status = 2;
+            } else {
+                if (isOpen(row - 1, col)) {
+                    status = (byte) (status | statusHelper(row - 1, col));
+                    grid.union(offset, offsetHelper(row - 1, col));
+                }
             }
-        }
 
-        // bottom
-        if (row == HEIGHT - 1) {
-            // connect with virtual tail sentinel cell
-            grid.union(offset, TAIL_SENT_OFFSET);
-        } else {
-            if (isOpen(row + 1, col)) {
-                grid.union(offset, offsetHelper(row + 1, col));
+            // bottom
+            if (row == HEIGHT - 1) {
+                status = (byte) (status | 1);
+            } else {
+                if (isOpen(row + 1, col)) {
+                    status = (byte) (status | statusHelper(row + 1, col));
+                    grid.union(offset, offsetHelper(row + 1, col));
+                }
             }
-        }
 
-        // left
-        if (col > 0 && isOpen(row, col - 1)) {
-            grid.union(offset, offsetHelper(row, col - 1));
-        }
+            // left
+            if (col > 0 && isOpen(row, col - 1)) {
+                status = (byte) (status | statusHelper(row, col - 1));
+                grid.union(offset, offsetHelper(row, col - 1));
+            }
 
-        // right
-        if (col < WIDTH - 1 && isOpen(row, col + 1)) {
-            grid.union(offset, offsetHelper(row, col + 1));
+            // right
+            if (col < WIDTH - 1 && isOpen(row, col + 1)) {
+                status = (byte) (status | statusHelper(row, col + 1));
+                grid.union(offset, offsetHelper(row, col + 1));
+            }
+
+            backwash[grid.find(offset)] = status;
+            if (status == 3) {
+                percolated = true;
+            }
         }
     }
 
@@ -81,7 +90,10 @@ public class Percolation {
     }
 
     public boolean isFull(int row, int col) {
-        return isOpen(row, col) && grid.connected(offsetHelper(row, col), HEAD_SENT_OFFSET);
+        if (row < 0 || row >= HEIGHT || col < 0 || col >= WIDTH) {
+            throw new java.lang.IndexOutOfBoundsException("Parameter out of bound!");
+        }
+        return statusHelper(row, col) > 1;
     }
 
     public int numberOfOpenSites() {
@@ -89,7 +101,7 @@ public class Percolation {
     }
 
     public boolean percolates() {
-        return grid.connected(HEAD_SENT_OFFSET, TAIL_SENT_OFFSET);
+        return percolated;
     }
 
     public static void main(String[] args) {
