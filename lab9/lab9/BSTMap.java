@@ -1,5 +1,6 @@
 package lab9;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -98,10 +99,90 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
 
+    private void keySetHelper(Set<K> s, Node node) {
+        if (node != null) {
+            s.add(node.key);
+            keySetHelper(s, node.left);
+            keySetHelper(s, node.right);
+        }
+    }
+
     /* Returns a Set view of the keys contained in this map. */
     @Override
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        Set<K> s = new HashSet<>();
+        keySetHelper(s, root);
+        return s;
+    }
+
+    private void removeNode(Node parent, Node toRemove) {
+        if (toRemove.left == null && toRemove.right == null) {
+            if (parent == null) { // toRemove is root
+                root = null;
+            } else {
+                // compare key to tell if toRemove is the left or right child of parent's
+                if (toRemove.key.compareTo(parent.key) < 0) {
+                    parent.left = null;
+                } else {
+                    parent.right = null;
+                }
+            }
+        } else if (toRemove.left == null) {
+            if (parent == null) {
+                root = toRemove.right;
+            } else {
+                if (toRemove.key.compareTo(parent.key) < 0) {
+                    parent.left = toRemove.right;
+                } else {
+                    parent.right = toRemove.right;
+                }
+            }
+        } else if (toRemove.right == null) {
+            if (parent == null) {
+                root = toRemove.left;
+            } else {
+                if (toRemove.key.compareTo(parent.key) < 0) {
+                    parent.left = toRemove.left;
+                } else {
+                    parent.right = toRemove.left;
+                }
+            }
+        } else {
+            // find leftmost node of right child's
+            Node candidateParent = toRemove.right;
+            if (candidateParent.left != null) {
+                Node leftmost = candidateParent.left;
+                while (leftmost.left != null) {
+                    leftmost = leftmost.left;
+                    candidateParent = candidateParent.left;
+                }
+
+                // easier replaced than removed actually
+                toRemove.key = leftmost.key;
+                toRemove.value = leftmost.value;
+                candidateParent.left = leftmost.right;
+            } else {
+                toRemove.right = candidateParent.right;
+            }
+        }
+    }
+
+    private V removeHelper(K key, Node parent, Node current) {
+        if (current == null) {
+            return null;
+        }
+
+        V value;
+        if (key.compareTo(current.key) == 0) {
+            size -= 1;
+            value = current.value;
+            removeNode(parent, current);
+        } else if (key.compareTo(current.key) < 0) {
+            value = removeHelper(key, current, current.left);
+        } else {
+            value = removeHelper(key, current, current.right);
+        }
+        return value;
     }
 
     /** Removes KEY from the tree if present
@@ -110,7 +191,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        return removeHelper(key, null, root);
     }
 
     /** Removes the key-value entry for the specified key only if it is
@@ -119,11 +200,14 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      **/
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        if (get(key) != value) {
+            return null;
+        }
+        return remove(key);
     }
 
     @Override
     public Iterator<K> iterator() {
-        throw new UnsupportedOperationException();
+        return keySet().iterator();
     }
 }
