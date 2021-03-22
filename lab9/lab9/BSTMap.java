@@ -162,6 +162,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
                 toRemove.value = leftmost.value;
                 candidateParent.left = leftmost.right;
             } else {
+                toRemove.key = candidateParent.key;
+                toRemove.value = candidateParent.value;
                 toRemove.right = candidateParent.right;
             }
         }
