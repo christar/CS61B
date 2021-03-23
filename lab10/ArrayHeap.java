@@ -181,7 +181,9 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         swap(1, size);
         contents[size] = null;
         size -= 1;
-        sink(1);
+        if (size > 0) {
+            sink(1);
+        }
         return minItem;
     }
 
@@ -259,7 +261,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         }
         if (index > size) {
             throw new IllegalArgumentException("Cannot sink or swim nodes"
-                    + "with index greater than current size.");
+                    + " with index greater than current size.");
         }
         if (contents[index] == null) {
             throw new IllegalArgumentException("Cannot sink or swim a null node.");
