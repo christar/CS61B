@@ -99,7 +99,13 @@ public class Board implements WorldState {
 
     @Override
     public boolean equals(Object y) {
+        if (y.getClass() != this.getClass()) {
+            return false;
+        }
         Board o = (Board) y;
+        if (o.size() != this.size()) {
+            return false;
+        }
         for (int r = 0; r < size(); r++) {
             for (int c = 0; c < size(); c++) {
                 if (this.tileAt(r, c) != o.tileAt(r, c)) {
