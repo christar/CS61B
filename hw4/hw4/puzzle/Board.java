@@ -99,9 +99,14 @@ public class Board implements WorldState {
 
     @Override
     public boolean equals(Object y) {
-        if (y.getClass() != this.getClass()) {
+        if (y == this) {
+            return true;
+        }
+
+        if (!(y instanceof Board)) {
             return false;
         }
+
         Board o = (Board) y;
         if (o.size() != this.size()) {
             return false;
