@@ -16,8 +16,19 @@ public class RadixSort {
      * @return String[] the sorted array
      */
     public static String[] sort(String[] asciis) {
-        // TODO: Implement LSD Sort
-        return null;
+        int maxLength = 0;
+        for (String s : asciis) {
+            maxLength = Math.max(maxLength, s.length());
+        }
+
+        String[] sorted = asciis.clone();
+
+        // first assume strings of same length
+        for (int i = maxLength - 1; i >= 0; i--) {
+            sortHelperLSD(sorted, i);
+        }
+
+        return sorted;
     }
 
     /**
@@ -27,8 +38,40 @@ public class RadixSort {
      * @param index The position to sort the Strings on.
      */
     private static void sortHelperLSD(String[] asciis, int index) {
+        int maxLength = 0;
+        for (String s : asciis) {
+            maxLength = Math.max(maxLength, s.length());
+        }
+
         // Optional LSD helper method for required LSD radix sort
-        return;
+        final int RADIX = 256;
+        char[] weight = new char[asciis.length];
+        for (int i = 0; i < asciis.length; i++) {
+            if (index + asciis[i].length() < maxLength) {
+                weight[i] = 0;
+            } else {
+                weight[i] = asciis[i].charAt(index + asciis[i].length() - maxLength);
+            }
+        }
+
+        int[] count = new int[RADIX];
+        for (char c : weight) {
+            count[c]++;
+        }
+
+        int[] starts = new int[RADIX];
+        for (int i = 0, pos = 0; i < RADIX; i++) {
+            starts[i] = pos;
+            pos += count[i];
+        }
+
+        String[] asciisCopy = asciis.clone();
+        for (int i = 0, pos = 0; i < asciis.length; i++) {
+            String item = asciisCopy[i];
+            pos = starts[weight[i]];
+            asciis[pos] = item;
+            starts[weight[i]]++;
+        }
     }
 
     /**
