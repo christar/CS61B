@@ -38,29 +38,24 @@ public class RadixSort {
      * @param index The position to sort the Strings on.
      */
     private static void sortHelperLSD(String[] asciis, int index) {
-        int maxLength = 0;
-        for (String s : asciis) {
-            maxLength = Math.max(maxLength, s.length());
-        }
-
         // Optional LSD helper method for required LSD radix sort
-        final int RADIX = 256;
+        final int asciiRadix = 256;
         char[] weight = new char[asciis.length];
         for (int i = 0; i < asciis.length; i++) {
-            if (index + asciis[i].length() < maxLength) {
+            if (index > asciis[i].length() - 1) {
                 weight[i] = 0;
             } else {
-                weight[i] = asciis[i].charAt(index + asciis[i].length() - maxLength);
+                weight[i] = asciis[i].charAt(index);
             }
         }
 
-        int[] count = new int[RADIX];
+        int[] count = new int[asciiRadix];
         for (char c : weight) {
             count[c]++;
         }
 
-        int[] starts = new int[RADIX];
-        for (int i = 0, pos = 0; i < RADIX; i++) {
+        int[] starts = new int[asciiRadix];
+        for (int i = 0, pos = 0; i < asciiRadix; i++) {
             starts[i] = pos;
             pos += count[i];
         }
