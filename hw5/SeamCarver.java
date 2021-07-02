@@ -126,10 +126,31 @@ public class SeamCarver {
     }
 
     public void removeHorizontalSeam(int[] seam) {
-
+        if (this.height() != seam.length) {
+            throw new IllegalArgumentException();
+        }
+        for (int s : seam) {
+            if (s < 0 || s >= this.width()) {
+                throw new IllegalArgumentException();
+            }
+        }
+        for (int i = 0; i < seam.length - 1; i++) {
+            if (seam[i] - seam[i + 1] > 1 || seam[i] - seam[i + 1] < -1) {
+                throw new IllegalArgumentException();
+            }
+        }
+        SeamRemover.removeHorizontalSeam(this.picture(), seam);
     }
 
     public void removeVerticalSeam(int[] seam) {
-
+        if (this.width() != seam.length) {
+            throw new IllegalArgumentException();
+        }
+        for (int s : seam) {
+            if (s < 0 || s >= this.height()) {
+                throw new IllegalArgumentException();
+            }
+        }
+        SeamRemover.removeVerticalSeam(this.picture(), seam);
     }
 }
