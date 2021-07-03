@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.Picture;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class SeamCarver {
     private Picture pic;
@@ -67,14 +67,16 @@ public class SeamCarver {
         for (int y = 0; y < matrixHeight; y++) {
             for (int x = 0; x < matrixWidth; x++) {
                 if (y != 0) {
-                    double lastMin;
-                    if (x == 0) {
-                        lastMin = Math.min(copy[x][y - 1], copy[x + 1][y - 1]);
-                    } else if (x == matrixWidth - 1) {
-                        lastMin = Math.min(copy[x][y - 1], copy[x - 1][y - 1]);
-                    } else {
-                        lastMin = Math.min(copy[x + 1][y - 1], copy[x - 1][y - 1]);
-                        lastMin = Math.min(lastMin, copy[x][y - 1]);
+                    double lastMin = copy[x][y - 1];
+                    if (matrixWidth > 1) {
+                        if (x == 0) {
+                            lastMin = Math.min(copy[x][y - 1], copy[x + 1][y - 1]);
+                        } else if (x == matrixWidth - 1) {
+                            lastMin = Math.min(copy[x][y - 1], copy[x - 1][y - 1]);
+                        } else {
+                            lastMin = Math.min(copy[x + 1][y - 1], copy[x - 1][y - 1]);
+                            lastMin = Math.min(lastMin, copy[x][y - 1]);
+                        }
                     }
                     copy[x][y] += lastMin;
                 }
