@@ -1,69 +1,59 @@
 import edu.princeton.cs.algs4.Picture;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class SeamCarver {
     private Picture pic;
-    private int width;
-    private int height;
     private double[][] energyMatrix;
 
     public SeamCarver(Picture picture) {
-        this.pic = picture;
-        this.width = picture.width();
-        this.height = picture.height();
+        this.pic = new Picture(picture);
         updateEnergyMatrix();
     }
 
     private void updateEnergyMatrix() {
-        this.energyMatrix = new double[this.width][this.height];
-        for (int x = 0; x < this.width; x++) {
-            for (int y = 0; y < this.height; y++) {
-                Color left = this.pic.get((this.width + x - 1) % this.width, y);
-                Color right = this.pic.get((x + 1) % this.width, y);
-                Color up = this.pic.get(x, (this.height + y - 1) % this.height);
-                Color down = this.pic.get(x, (y + 1) % this.height);
-
-                double energyX = (left.getBlue() - right.getBlue())
-                        * (left.getBlue() - right.getBlue());
-                energyX += (left.getGreen() - right.getGreen())
-                        * (left.getGreen() - right.getGreen());
-                energyX += (left.getRed() - right.getRed())
-                        * (left.getRed() - right.getRed());
-                double energyY = (up.getBlue() - down.getBlue())
-                        * (up.getBlue() - down.getBlue());
-                energyY += (up.getGreen() - down.getGreen())
-                        * (up.getGreen() - down.getGreen());
-                energyY += (up.getRed() - down.getRed())
-                        * (up.getRed() - down.getRed());
-                this.energyMatrix[x][y] = energyX + energyY;
+        this.energyMatrix = new double[this.width()][this.height()];
+        for (int x = 0; x < this.width(); x++) {
+            for (int y = 0; y < this.height(); y++) {
+                this.energyMatrix[x][y] = this.energy(x, y);
             }
         }
     }
 
     public Picture picture() {
-        if (this.width() != this.pic.width() || this.height() != this.pic.height()) {
-            this.width = this.pic.width();
-            this.height = this.pic.height();
-            updateEnergyMatrix();
-            return new Picture(this.pic);
-        }
-        return this.pic;
+        return new Picture(this.pic);
     }
 
     public int width() {
-        return this.width;
+        return this.pic.width();
     }
 
     public int height() {
-        return this.height;
+        return this.pic.height();
     }
 
     public double energy(int x, int y) {
         if (x >= this.width() || x < 0 || y >= this.height() || y < 0) {
             throw new IndexOutOfBoundsException();
         }
-        return this.energyMatrix[x][y];
+        Color left = this.pic.get((this.width() + x - 1) % this.width(), y);
+        Color right = this.pic.get((x + 1) % this.width(), y);
+        Color up = this.pic.get(x, (this.height() + y - 1) % this.height());
+        Color down = this.pic.get(x, (y + 1) % this.height());
+
+        double energyX = (left.getBlue() - right.getBlue())
+                * (left.getBlue() - right.getBlue());
+        energyX += (left.getGreen() - right.getGreen())
+                * (left.getGreen() - right.getGreen());
+        energyX += (left.getRed() - right.getRed())
+                * (left.getRed() - right.getRed());
+        double energyY = (up.getBlue() - down.getBlue())
+                * (up.getBlue() - down.getBlue());
+        energyY += (up.getGreen() - down.getGreen())
+                * (up.getGreen() - down.getGreen());
+        energyY += (up.getRed() - down.getRed())
+                * (up.getRed() - down.getRed());
+        return energyX + energyY;
     }
 
     private double[][] sumVerticalSeamMatrix(double[][] matrix) {
@@ -73,6 +63,7 @@ public class SeamCarver {
         for (int x = 0; x < matrixWidth; x++) {
             copy[x] = matrix[x].clone();
         }
+
         for (int y = 0; y < matrixHeight; y++) {
             for (int x = 0; x < matrixWidth; x++) {
                 if (y != 0) {
@@ -149,7 +140,8 @@ public class SeamCarver {
                 throw new IllegalArgumentException();
             }
         }
-        SeamRemover.removeHorizontalSeam(this.picture(), seam);
+        this.pic = SeamRemover.removeHorizontalSeam(this.pic, seam);
+        updateEnergyMatrix();
     }
 
     public void removeVerticalSeam(int[] seam) {
@@ -166,6 +158,7 @@ public class SeamCarver {
                 throw new IllegalArgumentException();
             }
         }
-        SeamRemover.removeVerticalSeam(this.picture(), seam);
+        this.pic = SeamRemover.removeVerticalSeam(this.pic, seam);
+        updateEnergyMatrix();
     }
 }
